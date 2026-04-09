@@ -1,10 +1,5 @@
 import "./style.css";
 
-if (!navigator.gpu) {
-  throw new Error("WebGPU nije podržan u ovom pretraživaču.");
-} else {
-  console.log("WebGPU je podržan!");
-}
 async function initWebGPU() {
   // 1. Dobijanje adaptera (GPU)
   const adapter = await navigator.gpu.requestAdapter();
@@ -15,7 +10,6 @@ async function initWebGPU() {
 
   // 3. Konfiguracija Canvas-a
   const canvas = document.querySelector("canvas") as HTMLCanvasElement;
-  console.log(canvas);
 
   const context = canvas.getContext("webgpu")!;
 
@@ -27,4 +21,4 @@ async function initWebGPU() {
   console.log("WebGPU je spreman!", device);
 }
 
-initWebGPU();
+await initWebGPU();
