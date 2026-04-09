@@ -16,3 +16,7 @@ h1 {
   font-size: 2.5rem;
   margin-bottom: 20px;
 }
+canvas {
+  border: 1px solid #ffffff;
+  background-color: #000000;
+}

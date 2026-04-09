@@ -15,6 +15,8 @@ async function initWebGPU() {
 
   // 3. Konfiguracija Canvas-a
   const canvas = document.querySelector("canvas") as HTMLCanvasElement;
+  console.log(canvas);
+
   const context = canvas.getContext("webgpu")!;
 
   context.configure({
