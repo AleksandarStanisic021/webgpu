@@ -33,7 +33,7 @@ async function init() {
 
 async function run() {
   const { device, context, format } = await init();
-  console.log("i do run");
+  console.log("I do run...");
 }
 
 run();
