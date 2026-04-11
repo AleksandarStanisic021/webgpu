@@ -28,12 +28,12 @@ async function init() {
     format,
   });
 
-  return { device, context, format };
+  return { adapter, device, context, format };
 }
 
 async function run() {
-  const { device, context, format } = await init();
-  console.log("I do run...");
+  const { device } = await init();
+  console.log("I do run...", device);
 }
 
 run();
