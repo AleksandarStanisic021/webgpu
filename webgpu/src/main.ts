@@ -41,7 +41,7 @@ async function run() {
       {
         view: context.getCurrentTexture().createView(),
         loadOp: "clear",
-        clearValue: { r: 0.2, g: 0.3, b: 0.7, a: 1 }, // New line
+        clearValue: { r: 0.2, g: 0.3, b: 0.7, a: 1 },
         storeOp: "store",
       },
     ],
@@ -49,7 +49,18 @@ async function run() {
   pass.end();
   const commandBuffer = encoder.finish();
   device.queue.submit([commandBuffer]);
-  //device.queue.submit([encoder.finish()]);
+  // device.queue.submit([encoder.finish()]);
+  const vertices = new Float32Array([
+    //   X,    Y,
+    -0.8, -0.8, 0.8, -0.8, 0.8, 0.8, -0.8, 0.8,
+  ]);
+
+  const vertexBuffer = device.createBuffer({
+    label: "Cell vertices",
+    size: vertices.byteLength,
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  });
+  device.queue.writeBuffer(vertexBuffer, /*bufferOffset=*/ 0, vertices);
 }
 
 run();
