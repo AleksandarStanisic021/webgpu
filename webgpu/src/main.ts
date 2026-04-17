@@ -61,6 +61,77 @@ async function run() {
     usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
   });
   device.queue.writeBuffer(vertexBuffer, /*bufferOffset=*/ 0, vertices);
+  const vertexBufferLayout = {
+    arrayStride: 8,
+    attributes: [
+      {
+        format: "float32x2",
+        offset: 0,
+        shaderLocation: 0, // Position, see vertex shader
+      },
+    ],
+  };
+
+  const cellShaderModule = device.createShaderModule({
+    label: "Cell shader",
+    code: `
+      @vertex
+      fn vs_main(@location(0) position: vec2<f32>) -> @builtin(position) vec4<f32> {
+        return vec4(position, 0.0, 1.0);
+      }
+
+      @fragment
+      fn fs_main() -> @location(0) vec4<f32> {
+        return vec4(1.0, 0.5, 0.2, 1.0);
+      }
+    `,
+  });
+
+  const pipeline = device.createRenderPipeline({
+    label: "Cell pipeline",
+    layout: "auto",
+    vertex: {
+      module: cellShaderModule,
+      entryPoint: "vs_main",
+      buffers: [vertexBufferLayout],
+    },
+    fragment: {
+      module: cellShaderModule,
+      entryPoint: "fs_main",
+      targets: [
+        {
+          format: navigator.gpu.getPreferredCanvasFormat(),
+        },
+      ],
+    },
+    primitive: {
+      topology: "triangle-strip",
+    },
+  });
+
+  const renderPassDescriptor: GPURenderPassDescriptor = {
+    colorAttachments: [
+      {
+        view: context.getCurrentTexture().createView(),
+        loadOp: "clear",
+        clearValue: { r: 0.2, g: 0.3, b: 0.7, a: 1 },
+        storeOp: "store",
+      },
+    ],
+  };
+
+  function frame() {
+    const commandEncoder = device.createCommandEncoder();
+    const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+    passEncoder.setPipeline(pipeline);
+    passEncoder.setVertexBuffer(0, vertexBuffer);
+    passEncoder.draw(4, 1, 0, 0);
+    passEncoder.end();
+    device.queue.submit([commandEncoder.finish()]);
+    requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
 }
 
 run();
