@@ -23,6 +23,7 @@ async function init() {
   }
 
   const format = navigator.gpu.getPreferredCanvasFormat();
+
   context.configure({
     device,
     format,
@@ -32,8 +33,23 @@ async function init() {
 }
 
 async function run() {
-  const { device } = await init();
+  const { device, context } = await init();
   console.log("I do run...", device);
+  const encoder = device.createCommandEncoder();
+  const pass = encoder.beginRenderPass({
+    colorAttachments: [
+      {
+        view: context.getCurrentTexture().createView(),
+        loadOp: "clear",
+        clearValue: { r: 0.2, g: 0.3, b: 0.7, a: 1 }, // New line
+        storeOp: "store",
+      },
+    ],
+  });
+  pass.end();
+  const commandBuffer = encoder.finish();
+  device.queue.submit([commandBuffer]);
+  //device.queue.submit([encoder.finish()]);
 }
 
 run();
