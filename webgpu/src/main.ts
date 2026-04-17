@@ -33,7 +33,7 @@ async function init() {
 }
 
 async function run() {
-  const { device, context } = await init();
+  const { device, context, format } = await init();
   console.log("I do run...", device);
   const encoder = device.createCommandEncoder();
   const pass = encoder.beginRenderPass({
@@ -41,12 +41,13 @@ async function run() {
       {
         view: context.getCurrentTexture().createView(),
         loadOp: "clear",
-        clearValue: { r: 0.2, g: 0.3, b: 0.7, a: 1 },
+        clearValue: { r: 0.9, g: 0, b: 0, a: 1 },
         storeOp: "store",
       },
     ],
   });
   pass.end();
+
   const commandBuffer = encoder.finish();
   device.queue.submit([commandBuffer]);
   // device.queue.submit([encoder.finish()]);
@@ -61,6 +62,7 @@ async function run() {
     usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
   });
   device.queue.writeBuffer(vertexBuffer, /*bufferOffset=*/ 0, vertices);
+
   const vertexBufferLayout = {
     arrayStride: 8,
     attributes: [
@@ -75,63 +77,57 @@ async function run() {
   const cellShaderModule = device.createShaderModule({
     label: "Cell shader",
     code: `
-      @vertex
-      fn vs_main(@location(0) position: vec2<f32>) -> @builtin(position) vec4<f32> {
-        return vec4(position, 0.0, 1.0);
-      }
-
-      @fragment
-      fn fs_main() -> @location(0) vec4<f32> {
-        return vec4(1.0, 0.5, 0.2, 1.0);
-      }
-    `,
+  @vertex
+fn vertexMain(@location(0) pos: vec2f) ->
+  @builtin(position) vec4f {
+  return vec4f(pos, 0, 1);
+}
+  @fragment
+fn fragmentMain() -> @location(0) vec4f {
+  return vec4f(1, 0.8, 0.2, 1);
+}  
+  `,
   });
-
-  const pipeline = device.createRenderPipeline({
+  const cellPipeline = device.createRenderPipeline({
     label: "Cell pipeline",
     layout: "auto",
     vertex: {
       module: cellShaderModule,
-      entryPoint: "vs_main",
+      entryPoint: "vertexMain",
       buffers: [vertexBufferLayout],
     },
     fragment: {
       module: cellShaderModule,
-      entryPoint: "fs_main",
+      entryPoint: "fragmentMain",
       targets: [
         {
-          format: navigator.gpu.getPreferredCanvasFormat(),
+          format,
         },
       ],
     },
-    primitive: {
-      topology: "triangle-strip",
-    },
   });
 
-  const renderPassDescriptor: GPURenderPassDescriptor = {
+  const renderPassDescriptor = {
     colorAttachments: [
       {
         view: context.getCurrentTexture().createView(),
         loadOp: "clear",
-        clearValue: { r: 0.2, g: 0.3, b: 0.7, a: 1 },
+        clearValue: { r: 0.9, g: 0, b: 0, a: 1 },
         storeOp: "store",
       },
     ],
   };
 
-  function frame() {
-    const commandEncoder = device.createCommandEncoder();
-    const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
-    passEncoder.setPipeline(pipeline);
-    passEncoder.setVertexBuffer(0, vertexBuffer);
-    passEncoder.draw(4, 1, 0, 0);
-    passEncoder.end();
-    device.queue.submit([commandEncoder.finish()]);
-    requestAnimationFrame(frame);
-  }
+  const commandEncoder = device.createCommandEncoder();
+  const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+  passEncoder.setPipeline(cellPipeline);
+  passEncoder.setVertexBuffer(0, vertexBuffer);
+  passEncoder.draw(4, 2, 0, 0);
+  passEncoder.end();
 
-  requestAnimationFrame(frame);
+  device.queue.submit([commandEncoder.finish()]);
 }
 
-run();
+run().catch((err) => {
+  console.error(err);
+});
