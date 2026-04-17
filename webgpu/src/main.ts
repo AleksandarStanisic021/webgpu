@@ -112,7 +112,7 @@ fn fragmentMain() -> @location(0) vec4f {
       {
         view: context.getCurrentTexture().createView(),
         loadOp: "clear",
-        clearValue: { r: 0.9, g: 0, b: 0, a: 1 },
+        clearValue: { r: 0.9, g: 0, b: 0.5, a: 0.6 },
         storeOp: "store",
       },
     ],
@@ -122,9 +122,8 @@ fn fragmentMain() -> @location(0) vec4f {
   const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
   passEncoder.setPipeline(cellPipeline);
   passEncoder.setVertexBuffer(0, vertexBuffer);
-  passEncoder.draw(4, 2, 0, 0);
+  passEncoder.draw(vertices.length / 2);
   passEncoder.end();
-
   device.queue.submit([commandEncoder.finish()]);
 }
 
