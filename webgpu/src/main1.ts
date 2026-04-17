@@ -12,7 +12,7 @@ async function init() {
 
   const device = await adapter.requestDevice();
 
-  const canvas = document.querySelector("canvas") as HTMLCanvasElement;
+  const canvas = document.querySelector("#webgpu-canvas") as HTMLCanvasElement;
   if (!canvas) {
     throw new Error("Canvas element not found.");
   }
@@ -63,7 +63,7 @@ async function run() {
   });
   device.queue.writeBuffer(vertexBuffer, /*bufferOffset=*/ 0, vertices);
 
-  const vertexBufferLayout = {
+  const vertexBufferLayout: GPUVertexBufferLayout = {
     arrayStride: 8,
     attributes: [
       {
@@ -107,7 +107,7 @@ fn fragmentMain() -> @location(0) vec4f {
     },
   });
 
-  const renderPassDescriptor = {
+  const renderPassDescriptor: GPURenderPassDescriptor = {
     colorAttachments: [
       {
         view: context.getCurrentTexture().createView(),
