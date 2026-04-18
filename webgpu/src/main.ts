@@ -34,11 +34,7 @@ async function init() {
 
 async function run() {
   const { device, context, format, adapter } = await init();
-  console.log("I do run...", device);
-  console.log("Adapter:", adapter);
-  console.log("Context:", context);
-  console.log("Format:", format);
-  console.log("Device:", device);
+
   let pipeline = await device.createRenderPipelineAsync({
     layout: "auto",
     vertex: {
@@ -62,7 +58,7 @@ async function run() {
         code: `
         @fragment
         fn main() -> @location(0) vec4<f32> {
-          return vec4<f32>(1.0, 0.0, 0.0, 1.0);
+          return vec4<f32>(1.0, 0.0, 1.0, 1.0);
         }
       `,
       }),
@@ -80,7 +76,7 @@ async function run() {
     colorAttachments: [
       {
         view: textureView,
-        clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
+        clearValue: { r: 1.0, g: 1.0, b: 0.0, a: 1.0 },
         loadOp: "clear",
         storeOp: "store",
       },
