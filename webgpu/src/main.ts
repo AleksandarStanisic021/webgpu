@@ -33,7 +33,7 @@ async function init() {
 }
 
 async function run() {
-  const { device, context, format } = await init();
+  const { device, context, format, adapter } = await init();
   console.log("I do run...", device);
 }
 run().catch((err) => console.error(err));
